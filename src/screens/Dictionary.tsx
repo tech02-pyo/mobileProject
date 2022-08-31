@@ -1,7 +1,6 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-  Alert,
   View,
   Text,
   StyleSheet,
@@ -18,9 +17,10 @@ export default function Dictionary() {
     [data_info, setData_info] = useState([]), //사전내용
     [word, setWord] = useState(""),
     [subject, setSubject] = useState(""),
-    [target_code, setTarget_code] = useState("");
+    [example, setExample] = useState([]),
+    [pron, setPron] = useState("");
 
-  const search = () => {
+  function search() {
     axios
       .get(
         `https://stdict.korean.go.kr/api/search.do?certkey_no=4303&key=${API_KEY}&
@@ -28,49 +28,72 @@ export default function Dictionary() {
       )
       .then((res) => {
         setData_dic(res.data.channel.item);
-        setTarget_code(res.data.channel.item[0].target_code);
-        let item = "";
-        const target_length = res.data.channel.item.length;
-        if (target_length < 1) {
-          //target_code가 2개 이상일 경우
-          let num = 0;
-          for (num = 0; num <= target_length; num++) {
-            item = res.data.channel.item[num].target_code;
-            console.log("item", item);
-          }
-        }
+        const item =
+          res.data.channel.item?.length > 0 ? res.data.channel.item[0] : [];
+
         setSubject(`${word}`);
+        search_info(item.target_code);
       })
       .catch((error) => {
         console.log("Error", error);
       });
-  };
+  }
 
-  const search_info = () => {
+  function search_info(target_code: string) {
     axios
       .get(
-        `https://stdict.korean.go.kr/api/view.do?certkey_no=4304&key=${API_KEY}&
-        type_search=view&req_type=json&method=TARGET_CODE&q=${target_code}`
+        `https://stdict.korean.go.kr/api/view.do?certkey_no=4304&key=${API_KEY}&type_search=view&req_type=json&method=TARGET_CODE&q=${target_code}`
       )
       .then((res) => {
         setData_info(res.data.channel.item);
-        console.log("info:", res.data.item);
+
+        const item = res.data.channel.item;
+
+        const pos_info = item.word_info.pos_info;
+
+        let comm_pattern_info = null;
+
+        if (pos_info && pos_info.length > 0) {
+          comm_pattern_info = pos_info[0].comm_pattern_info;
+        }
+
+        let sense_info = null;
+        if (comm_pattern_info && comm_pattern_info.length > 0) {
+          sense_info = comm_pattern_info[0].sense_info;
+        }
+
+        let example_info = [];
+        if (sense_info && sense_info.length > 0) {
+          example_info = sense_info[0].example_info;
+        }
+
+        setExample(example_info);
+
+        const pronunciation_info = item.word_info.pronunciation_info;
+        let pronunciation = "";
+        if (pronunciation_info && pronunciation_info.length > 0) {
+          pronunciation = pronunciation_info[0].pronunciation;
+        }
+
+        setPron(`[발음 : ${pronunciation}]`);
       })
       .catch((error) => {
         console.log("Error", error);
       });
-  };
+  }
 
   const reset = () => {
     setWord("");
     setSubject("");
     setData_dic([]);
+    setPron("");
+    setExample([]);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.head}>📚 단어사전검색기 </Text>
-      <Text style={styles.secondHead}>검색어를 입력해주세요.</Text>
+      <Text style={styles.secondHead}>단어를 입력해주세요.</Text>
       <InputText
         placeholder="검색어"
         style={styles.input}
@@ -82,7 +105,6 @@ export default function Dictionary() {
           style={styles.button}
           onPress={() => {
             search();
-            search_info();
           }}
         >
           <Text style={styles.link}>검색</Text>
@@ -99,7 +121,13 @@ export default function Dictionary() {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.word}>{subject}</Text>
+        <Text style={styles.word}>
+          {subject}
+          {subject && pron != "" ? (
+            <Text style={{ fontSize: 18, color: "gray" }}>{pron}</Text>
+          ) : null}
+        </Text>
+
         <ScrollView>
           {data_dic
             ? data_dic.map((data, index): any => {
@@ -108,8 +136,30 @@ export default function Dictionary() {
                     <Text>{data.sup_no}) </Text>
                     <Text style={styles.pos}>{data.pos} </Text>
                     <Text>{data.sense.definition}</Text>
-                    <Text></Text>
-                    {data.target_code}
+                  </Text>
+                );
+              })
+            : null}
+          {subject && example ? (
+            <View
+              style={{
+                marginTop: 20,
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <View style={{ flex: 1, height: 1, backgroundColor: "black" }} />
+              <View>
+                <Text style={styles.innerLink2}>예시문</Text>
+              </View>
+              <View style={{ flex: 1, height: 1, backgroundColor: "black" }} />
+            </View>
+          ) : null}
+          {example
+            ? example.map((data, index) => {
+                return (
+                  <Text key={index}>
+                    <Text>{data.example}</Text>
                   </Text>
                 );
               })
@@ -173,6 +223,14 @@ const styles = StyleSheet.create({
     marginRight: 5,
     width: 150,
   },
+  button2: {
+    backgroundColor: "#655DEC",
+    borderRadius: 20,
+    width: 100,
+    height: 20,
+    textAlign: "center",
+  },
+
   textDetail: {
     color: "gray",
     textAlign: "center",
@@ -189,11 +247,54 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#655DEC",
   },
+  innerLink2: {
+    fontWeight: "bold",
+    color: "#655DEC",
+
+    fontSize: 15,
+    textAlign: "center",
+  },
   content: {
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
   pos: {
     color: "#655DEC",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  buttonOpen: {
+    backgroundColor: "#655DEC",
+  },
+  buttonClose: {
+    backgroundColor: "#655DEC",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
   },
 });
