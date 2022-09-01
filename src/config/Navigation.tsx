@@ -19,6 +19,12 @@ export default function Navigation() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
+          name="Home"
+          options={{ title: "Home" }}
+          component={Home}
+        />
+
+        <Stack.Screen
           name="Login"
           options={{ title: "Login" }}
           component={Login}
@@ -28,11 +34,7 @@ export default function Navigation() {
           options={{ title: "회원가입" }}
           component={Signup}
         />
-        <Stack.Screen
-          name="Home"
-          options={{ title: "Home" }}
-          component={Home}
-        />
+
         <Stack.Screen
           name="Board_list"
           options={{ title: "게시판" }}

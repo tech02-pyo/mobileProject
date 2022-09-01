@@ -25,7 +25,7 @@ export default function Board({ route }) {
   }, []);
 
   const date = moment(reg_date).format("YYYY-MM-DD");
-
+  const font_size = {};
   return (
     <View style={styles.table}>
       <Text style={styles.head}>{title}</Text>
@@ -36,12 +36,14 @@ export default function Board({ route }) {
         </DataTable.Header>
         <DataTable.Row>
           <DataTable.Cell> {writer}</DataTable.Cell>
-          <DataTable.Cell>{date}</DataTable.Cell>
+          <DataTable.Cell style={{ paddingLeft: 100 }}>{date}</DataTable.Cell>
         </DataTable.Row>
       </DataTable>
       <DataTable>
         <DataTable.Row>
-          <DataTable.Cell>{content}</DataTable.Cell>
+          <DataTable.Cell>
+            <Text style={{ fontSize: 18 }}>{content}</Text>
+          </DataTable.Cell>
         </DataTable.Row>
       </DataTable>
 

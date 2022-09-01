@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import InputText from "../components/Input";
 
@@ -104,7 +105,9 @@ export default function Dictionary() {
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
-            search();
+            {
+              !word ? Alert.alert("단어를 입력해주세요.") : search();
+            }
           }}
         >
           <Text style={styles.link}>검색</Text>
@@ -124,7 +127,7 @@ export default function Dictionary() {
         <Text style={styles.word}>
           {subject}
           {subject && pron != "" ? (
-            <Text style={{ fontSize: 18, color: "gray" }}>{pron}</Text>
+            <Text style={{ fontSize: 18, color: "gray" }}> {pron}</Text>
           ) : null}
         </Text>
 
@@ -133,7 +136,7 @@ export default function Dictionary() {
             ? data_dic.map((data, index): any => {
                 return (
                   <Text key={index}>
-                    <Text>{data.sup_no}) </Text>
+                    <Text>{index + 1}) </Text>
                     <Text style={styles.pos}>{data.pos} </Text>
                     <Text>{data.sense.definition}</Text>
                   </Text>
@@ -150,7 +153,7 @@ export default function Dictionary() {
             >
               <View style={{ flex: 1, height: 1, backgroundColor: "black" }} />
               <View>
-                <Text style={styles.innerLink2}>예시문</Text>
+                <Text style={styles.innerLink2}> 예시문 </Text>
               </View>
               <View style={{ flex: 1, height: 1, backgroundColor: "black" }} />
             </View>
@@ -159,7 +162,9 @@ export default function Dictionary() {
             ? example.map((data, index) => {
                 return (
                   <Text key={index}>
-                    <Text>{data.example}</Text>
+                    <Text>
+                      {index + 1}) {data.example}
+                    </Text>
                   </Text>
                 );
               })
@@ -184,11 +189,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     marginVertical: 10,
     borderRadius: 20,
-  },
-  table: {
-    //paddingTop: 100,
-    paddingHorizontal: 30,
-    height: 500,
   },
   head: {
     fontSize: 25,
@@ -260,41 +260,5 @@ const styles = StyleSheet.create({
   },
   pos: {
     color: "#655DEC",
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  buttonOpen: {
-    backgroundColor: "#655DEC",
-  },
-  buttonClose: {
-    backgroundColor: "#655DEC",
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
   },
 });
