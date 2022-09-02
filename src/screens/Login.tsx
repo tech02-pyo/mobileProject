@@ -1,20 +1,40 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Button,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import InputText from "../components/Input";
 import { Link } from "@react-navigation/native";
 import axios from "axios";
-import Navigation from "../config/Navigation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
+let token = "";
 export default function Login({ navigation }) {
+  AsyncStorage.setItem("token", "");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  function getUserInfo(token) {
+    axios
+      .post(
+        "http://localhost:3300/auth/userinfo",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        console.log("getUSerInfo", res.data);
+        const managerYN = res.data.managerYN;
+        const username = res.data.username;
+        AsyncStorage.setItem("username", username);
+        if (managerYN === "N") {
+          navigation.navigate("Home");
+        } else {
+          Alert.alert("관리자 계정은 이용할 수 없습니다.");
+        }
+      });
+  }
 
   return (
     <View style={styles.container}>
@@ -42,10 +62,11 @@ export default function Login({ navigation }) {
               email: `${email}`,
               password: `${password}`,
             })
-            // eslint-disable-next-line no-unused-vars
+
             .then((res) => {
-              //console.log("res", res);
-              navigation.navigate("Home");
+              token = res.data.accessToken;
+              AsyncStorage.setItem("token", token);
+              getUserInfo(token);
             })
             .catch((error) => {
               console.log("Error:", error.response);

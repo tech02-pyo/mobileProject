@@ -1,27 +1,60 @@
-import { Link } from "@react-navigation/native";
 import React from "react";
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
-import Navigation from "../config/Navigation";
+import { Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import Board_list from "./Board_list";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home() {
   const navigation = useNavigation();
+  let menu: string = "";
+
+  async function loginCheck(menu: string) {
+    const token = await AsyncStorage.getItem("token");
+
+    if (!token) {
+      Alert.alert("로그인 후 이용 가능 합니다.");
+      navigation.navigate("Login");
+    } else {
+      navigation.navigate(menu);
+    }
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.head}>💜Welcome to KLAI EDU!💜</Text>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("Dictionary")}
+        onPress={() => {
+          menu = "Dictionary";
+          loginCheck(menu);
+        }}
       >
         <Text style={styles.link}>Dictionary</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("Board_list")}
+        onPress={() => {
+          menu = "Board_list";
+          loginCheck(menu);
+        }}
       >
         <Text style={styles.link}>Board</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("Login")}
+      >
+        <Text style={styles.link}>login</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          AsyncStorage.clear();
+          navigation.navigate("Login");
+        }}
+      >
+        <Text style={styles.link}>logout</Text>
       </TouchableOpacity>
     </View>
   );
