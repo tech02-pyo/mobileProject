@@ -1,22 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function Home() {
-  const navigation = useNavigation();
-  let menu: string = "";
+export default function Home({ route, navigation }) {
+  const [isToken, setIsToken] = useState(false);
+  useEffect(() => {
+    setIsToken(route.params);
+    console.log("isToken", route.params);
+    loginCheck();
+  });
 
-  async function loginCheck(menu: string) {
-    const token = await AsyncStorage.getItem("token");
-
-    if (!token) {
-      Alert.alert("로그인 후 이용 가능 합니다.");
+  //const navigation = useNavigation();
+  async function loginCheck() {
+    //const token = await AsyncStorage.getItem("token");
+    console.log("loginCheck?", isToken);
+    if (isToken === false) {
+      //Alert.alert("로그인 후 이용 가능 합니다.");
       navigation.navigate("Login");
     } else {
-      navigation.navigate(menu);
+      //navigation.push("Home");
     }
   }
+
   return (
     <View style={styles.container}>
       <Text style={styles.head}>💜Welcome to KLAI EDU!💜</Text>
@@ -24,17 +30,16 @@ export default function Home() {
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
-          menu = "Dictionary";
-          loginCheck(menu);
+          navigation.navigate("Dictionary");
         }}
       >
         <Text style={styles.link}>Dictionary</Text>
       </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
-          menu = "Board_list";
-          loginCheck(menu);
+          navigation.navigate("Board_list");
         }}
       >
         <Text style={styles.link}>Board</Text>
@@ -49,9 +54,11 @@ export default function Home() {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => {
-          AsyncStorage.clear();
-          navigation.navigate("Login");
+        onPress={async () => {
+          Alert.alert("로그아웃 되었습니다.");
+          await AsyncStorage.removeItem("token").then(() => {
+            navigation.push("Home", { isToken: false });
+          });
         }}
       >
         <Text style={styles.link}>logout</Text>

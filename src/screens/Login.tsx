@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import InputText from "../components/Input";
 import { Link } from "@react-navigation/native";
@@ -8,9 +8,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 let token = "";
 export default function Login({ navigation }) {
   AsyncStorage.setItem("token", "");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
+  const [email, setEmail] = useState(""),
+    [password, setPassword] = useState(""),
+    [istoken, setIsToken] = useState(false);
   function getUserInfo(token) {
     axios
       .post(
@@ -29,12 +29,16 @@ export default function Login({ navigation }) {
         const username = res.data.username;
         AsyncStorage.setItem("username", username);
         if (managerYN === "N") {
-          navigation.navigate("Home");
+          navigation.navigate("Home", { isToken: true });
         } else {
           Alert.alert("관리자 계정은 이용할 수 없습니다.");
         }
       });
   }
+
+  useEffect(() => {
+    setIsToken(!!AsyncStorage.getItem("token") ? true : false);
+  });
 
   return (
     <View style={styles.container}>
