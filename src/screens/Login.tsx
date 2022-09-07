@@ -24,21 +24,16 @@ export default function Login({ navigation }) {
         }
       )
       .then((res) => {
-        console.log("getUSerInfo", res.data);
         const managerYN = res.data.managerYN;
         const username = res.data.username;
         AsyncStorage.setItem("username", username);
         if (managerYN === "N") {
-          navigation.navigate("Home", { isToken: true });
+          navigation.navigate("Home");
         } else {
           Alert.alert("관리자 계정은 이용할 수 없습니다.");
         }
       });
   }
-
-  useEffect(() => {
-    setIsToken(!!AsyncStorage.getItem("token") ? true : false);
-  });
 
   return (
     <View style={styles.container}>

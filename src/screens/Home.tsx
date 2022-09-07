@@ -1,69 +1,48 @@
 import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Dictionary } from "../screens";
+import { useIsFocused } from "@react-navigation/native";
 
-export default function Home({ route, navigation }) {
-  const [isToken, setIsToken] = useState(false);
+let data = "";
+export default function Home({ navigation }) {
+  const [username, setUsername] = useState("");
+  const isFocused = useIsFocused(); //refresh page
   useEffect(() => {
-    setIsToken(route.params);
-    console.log("isToken", route.params);
-    loginCheck();
-  });
+    getUserName();
+  }, [isFocused]);
 
-  //const navigation = useNavigation();
-  async function loginCheck() {
-    //const token = await AsyncStorage.getItem("token");
-    console.log("loginCheck?", isToken);
-    if (isToken === false) {
-      //Alert.alert("로그인 후 이용 가능 합니다.");
-      navigation.navigate("Login");
+  async function getUserName() {
+    data = await AsyncStorage.getItem("username");
+    if (data !== null) {
+      setUsername(data);
     } else {
-      //navigation.push("Home");
+      navigation.navigate("Login");
     }
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.head}>💜Welcome to KLAI EDU!💜</Text>
+    <>
+      <View style={styles.container}>
+        <View style={styles.button_area}>
+          <Text style={styles.head}>💜{username} 님💜</Text>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          navigation.navigate("Dictionary");
-        }}
-      >
-        <Text style={styles.link}>Dictionary</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          navigation.navigate("Board_list");
-        }}
-      >
-        <Text style={styles.link}>Board</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate("Login")}
-      >
-        <Text style={styles.link}>login</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={async () => {
-          Alert.alert("로그아웃 되었습니다.");
-          await AsyncStorage.removeItem("token").then(() => {
-            navigation.push("Home", { isToken: false });
-          });
-        }}
-      >
-        <Text style={styles.link}>logout</Text>
-      </TouchableOpacity>
-    </View>
+          <TouchableOpacity
+            style={styles.button_logout}
+            onPress={async () => {
+              Alert.alert("로그아웃 되었습니다.");
+              await AsyncStorage.removeItem("token").then(() => {
+                AsyncStorage.removeItem("username");
+                navigation.push("Login");
+              });
+            }}
+          >
+            <Text style={styles.link}>logout</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <Dictionary />
+    </>
   );
 }
 const styles = StyleSheet.create({
@@ -89,7 +68,9 @@ const styles = StyleSheet.create({
   secondHead: {
     color: "gray",
     textAlign: "center",
+    marginTop: 30,
     marginVertical: 10,
+    fontSize: 18,
   },
 
   textDetail: {
@@ -117,5 +98,25 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 20,
     marginBottom: 20,
+  },
+  button_logout: {
+    alignSelf: "flex-end",
+    textAlign: "center",
+    backgroundColor: "#655DEC",
+    color: "white",
+    // paddingHorizontal: 25,
+    paddingVertical: 15,
+    //marginVertical: 10,
+    borderRadius: 20,
+    marginBottom: 50,
+    marginRight: 5,
+    marginLeft: 10,
+    width: 90,
+    height: 45,
+  },
+  button_area: {
+    alignSelf: "flex-end",
+    flexDirection: "row",
+    marginBottom: -40,
   },
 });

@@ -12,11 +12,20 @@ const RootNavigator = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Root"
+        name="Home"
         component={BottomTabNavigator}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+        }}
       />
-      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen
+        name="Login"
+        component={Login}
+        options={{
+          headerBackVisible: false,
+          headerLeft: () => null,
+        }}
+      />
       <Stack.Screen name="Signup" component={Signup} />
       <Stack.Screen name="Board" component={Board} />
     </Stack.Navigator>
@@ -27,9 +36,10 @@ function BottomTabNavigator() {
   return (
     <BottomTab.Navigator initialRouteName="Home">
       <BottomTab.Screen
-        name="Home"
+        name="KLAI EDU"
         component={Home}
         options={{
+          tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => (
             <Icon name="home" size={size} color={color} />
           ),
@@ -39,6 +49,7 @@ function BottomTabNavigator() {
         name="Board_list"
         component={Board_list}
         options={{
+          tabBarLabel: "Board",
           tabBarIcon: ({ color, size }) => (
             <Icon name="chat" size={size} color={color} />
           ),
