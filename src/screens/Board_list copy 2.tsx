@@ -8,36 +8,28 @@ import { useNavigation } from "@react-navigation/native";
 import { DataTable } from "react-native-paper";
 
 export let data: any[];
-const itemsPerPage = 3;
-const LIMIT = 10;
 const Board_list = ({ navigation }) => {
+  //const navigation = useNavigation();
   const [boardId, setBoardId] = useState(),
-    [dataOffset, setDataOffset] = useState([]),
-    [page, setPage] = useState(0),
-    [offset, setOffset] = useState(0),
-    [length, setLength] = useState(0);
-  const from = page * itemsPerPage;
-  const to = (page + 1) * itemsPerPage;
+    //[data, setData] = useState([]),
+    [writer, setWriter] = useState(""),
+    [title, setTitle] = useState("");
 
   const getData = () => {
     axios.get(`http://localhost:3300/boards/`).then((res) => {
       data = res.data;
-      setDataOffset(res.data.slice(offset, offset + LIMIT));
-      setOffset(offset + LIMIT);
-      console.log("dataoffset", dataOffset.length); //9
+      setWriter(res.data.writer);
+      setTitle(res.data.title);
+
+      //console.log(res.data);
     });
   };
   useEffect(() => {
     getData();
   }, []);
 
-  const onEndReached = () => {
-    getData();
-  };
-
   const renderItem = ({ item }) => {
     const date = moment(item.reg_date).format("YYYY-MM-DD");
-    setLength(item.length);
     return (
       <View>
         <DataTable>
@@ -57,17 +49,17 @@ const Board_list = ({ navigation }) => {
         data={data}
         keyExtractor={(item) => String(item.board_id)}
         renderItem={renderItem}
-        onEndReached={onEndReached} //onEndReachedThreshold로 지정해준 스크롤 지점에 도달 했을 때 실행할 함수 정의(10개씩 데이터를 불러옴)
-        onEndReachedThreshold={0.6} //onEndReached 함수를 실행시킬 스크롤의 지점
+        // ItemSeparatorComponent={() => (
+        //   <View
+        //     style={{
+        //       height: 1,
+        //       //backgroundColor: AppStyle.AppThemeColorDarkGray,
+        //     }}
+        //   />
+        // )}
+        //  onEndReachedThreshold={0}
+        //onEndReached={() => getData()}
       />
-      <DataTable>
-        <DataTable.Pagination
-          page={page}
-          numberOfPages={Math.floor(length / itemsPerPage)}
-          onPageChange={(page) => setPage(page)}
-          label={`${from + 1}-${to} of ${length}`}
-        />
-      </DataTable>
     </View>
   );
 };
