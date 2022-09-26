@@ -106,7 +106,7 @@ export default function Dictionary() {
           style={styles.button}
           onPress={() => {
             {
-              !word ? Alert.alert("단어를 입력해주세요.") : search();
+              !word ? Alert.alert("단어를 입력해주세요!") : search();
             }
           }}
         >
